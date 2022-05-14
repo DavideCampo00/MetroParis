@@ -35,11 +35,7 @@ public class Model {
 		return this.fermate;
 	}
 	
-	public List<Fermata> calcolaPercorso(Fermata partenza, Fermata arrivo) {
-		creaGrafo() ;
-		visitaGrafo(partenza);
-		return null ;
-	}
+	
 
 	public void creaGrafo() {
 		this.grafo = new SimpleDirectedGraph<Fermata, DefaultEdge>(DefaultEdge.class);
@@ -59,9 +55,22 @@ public class Model {
 //		System.out.println("Archi   = " + this.grafo.edgeSet().size());
 	}
 
+	public List<Fermata> calcolaPercorso(Fermata partenza, Fermata arrivo) {
+		creaGrafo() ;
+		Map<Fermata,Fermata> alberoInverso=visitaGrafo(partenza);
+		
+		Fermata corrente=arrivo;
+		List<Fermata> percorso=new ArrayList<Fermata>();
+		
+		while(corrente!=null) {
+			percorso.add(0,corrente);
+			corrente=alberoInverso.get(corrente);		//si poteva usare la getParent del BreadthFirstIterator
+		}
+		
+		return percorso;
+	}
 	
-	
-	public void visitaGrafo(Fermata partenza) {
+	public Map<Fermata,Fermata>  visitaGrafo(Fermata partenza) {
 		GraphIterator<Fermata, DefaultEdge> visita = new BreadthFirstIterator<>(this.grafo, partenza);
 		
 		Map<Fermata,Fermata> alberoInverso = new HashMap<>() ;
@@ -72,6 +81,7 @@ public class Model {
 			Fermata f = visita.next();
 //			System.out.println(f);
 		}
+		return alberoInverso;
 		
 		
 		// Ricostruiamo il percorso a partire dall'albero inverso (pseudo-code)
